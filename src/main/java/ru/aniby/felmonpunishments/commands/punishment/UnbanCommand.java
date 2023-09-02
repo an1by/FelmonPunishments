@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
 import ru.aniby.felmonpunishments.punishment.ban.Ban;
 import ru.aniby.felmonpunishments.punishment.ban.BanManager;
@@ -28,16 +29,16 @@ public class UnbanCommand implements FPCommand {
         if (executor == null || !hasPermission(object))
             return;
 
-        String intruder = argumenter.getAnyString(object, "intruder");
+        String intruder = argumenter.getUsername(object, "intruder");
         if (intruder == null) {
-            CommandUtils.send(object, CommandUtils.Message.WRONG_ARGUMENTS);
+            CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }
 
         // Execute
         Ban foundedBan = BanManager.getBan(intruder);
         if (foundedBan == null) {
-            CommandUtils.send(object, CommandUtils.Message.PUNISHMENT_NOT_EXISTS);
+            CommandUtils.send(object, FPMessagesConfig.punishmentNotExists);
             return;
         }
         foundedBan.revoke(executor);
@@ -52,8 +53,8 @@ public class UnbanCommand implements FPCommand {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> list = new ArrayList<>();
         switch (args.length) {
-            case 0 -> list = CommandUtils.Completer.punishmentPlayers(BanManager.getPlayerBans(), "");
-            case 1 -> list = CommandUtils.Completer.punishmentPlayers(BanManager.getPlayerBans(), args[0]);
+            case 0 -> list = CommandUtils.punishmentPlayersCompleter(BanManager.getPlayerBans(), "");
+            case 1 -> list = CommandUtils.punishmentPlayersCompleter(BanManager.getPlayerBans(), args[0]);
             default -> {}
         }
         return list;

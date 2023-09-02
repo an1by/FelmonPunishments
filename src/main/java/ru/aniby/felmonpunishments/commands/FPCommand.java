@@ -11,15 +11,15 @@ import net.luckperms.api.model.user.User;
 import org.bukkit.command.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.aniby.felmonapi.FelmonUtils;
 import ru.aniby.felmonpunishments.FelmonPunishments;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
 import ru.aniby.felmonpunishments.discord.DiscordUtils;
 import ru.aniby.felmonpunishments.discord.FPLinkedGuild;
 import ru.aniby.felmonpunishments.player.FPPlayer;
 import ru.aniby.felmonpunishments.utils.CommandUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public interface FPCommand extends CommandExecutor, TabCompleter {
     default boolean isRightObject(Object object) {
@@ -64,32 +64,30 @@ public interface FPCommand extends CommandExecutor, TabCompleter {
         Member member = event.getMember();
         if (member == null)
             return false;
-        if (getArgumenter() == null) {
-            event.reply(CommandUtils.Message.ERROR_IN_PROCESSING.getText()).setEphemeral(true).queue();
-            return false;
-        }
+        if (getArgumenter() != null) {
+            String nickname = member.getNickname();
+            if (nickname != null) {
+                FPPlayer fpPlayer = FPPlayer.get(member.getNickname());
+                User lpUser = fpPlayer.getLuckpermsUser();
+                if (CommandUtils.hasPermission(lpUser, permission))
+                    return true;
+            }
 
-        String nickname = member.getNickname();
-        if (nickname != null) {
-            FPPlayer fpPlayer = FPPlayer.get(member.getNickname());
-            User lpUser = fpPlayer.getLuckpermsUser();
-            if (CommandUtils.hasPermission(lpUser, permission))
-                return true;
-        }
-
-        FPLinkedGuild linkedGuild = DiscordUtils.getLinkedGuild();
-        if (linkedGuild != null) {
-            HashMap<Group, Role> sync = linkedGuild.getGroups();
-            for (Group primaryGroup : sync.keySet()) {
-                if (CommandUtils.hasPermission(primaryGroup, permission)) {
-                    Role role = sync.get(primaryGroup);
-                    if (member.getRoles().contains(role)) {
-                        return true;
+            FPLinkedGuild linkedGuild = DiscordUtils.getLinkedGuild();
+            if (linkedGuild != null) {
+                HashMap<Group, Role> sync = linkedGuild.getGroups();
+                for (Group primaryGroup : sync.keySet()) {
+                    if (CommandUtils.hasPermission(primaryGroup, permission)) {
+                        Role role = sync.get(primaryGroup);
+                        if (member.getRoles().contains(role)) {
+                            return true;
+                        }
                     }
                 }
             }
         }
-        event.reply(CommandUtils.Message.NOT_ENOUGH_PERMISSIONS.getText()).setEphemeral(true).queue();
+        event.getHook().setEphemeral(true).sendMessage(FPMessagesConfig.notEnoughPermissions.getText()).queue();
+//        event.reply(FPMessagesConfig.notEnoughPermissions.getText()).setEphemeral(true).queue();
         return false;
     }
 
@@ -102,9 +100,16 @@ public interface FPCommand extends CommandExecutor, TabCompleter {
     default @NotNull CommandData slashCommandData() {
         CommandDataImpl commandData = new CommandDataImpl(getName(), getDescription());
         if (getArgumenter() != null) {
-            List<OptionData> data = getArgumenter().getArgumentList()
-                    .stream().map(FPCommandOption::getOptionData).toList();
-            commandData.addOptions(data);
+            List<OptionData> arguments = getArgumenter().getArgumentList().stream()
+                    .map(FPCommandOption::getOptionDataList)
+                    .sorted((var1, var2) -> Boolean.compare(var1.isRequired(), var2.isRequired()))
+                    .toList();
+            commandData.addOptions(
+                    arguments.stream().filter(OptionData::isRequired).toList()
+            );
+            commandData.addOptions(
+                    arguments.stream().filter(a -> !a.isRequired()).toList()
+            );
         }
         return commandData;
     }
@@ -145,8 +150,8 @@ public interface FPCommand extends CommandExecutor, TabCompleter {
                 }
 
                 switch (option) {
-                    case PLAYER, NICKNAME, INTRUDER, VICTIM -> list = CommandUtils.Completer.players(value);
-                    case TIME -> list = CommandUtils.Completer.time(value);
+                    case PLAYER, NICKNAME, INTRUDER, VICTIM -> list = FelmonUtils.Completer.players(value);
+                    case TIME -> list = FelmonUtils.Completer.time(value);
                     case REASON -> list.add("[Причина]");
                 }
             }

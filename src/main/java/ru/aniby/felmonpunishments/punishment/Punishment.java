@@ -1,22 +1,18 @@
 package ru.aniby.felmonpunishments.punishment;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import ru.aniby.felmonapi.FelmonUtils;
+import ru.aniby.felmonapi.database.DatabaseHolderInterface;
 import ru.aniby.felmonpunishments.FelmonPunishments;
-import ru.aniby.felmonpunishments.database.DatabaseHolderInterface;
 import ru.aniby.felmonpunishments.punishment.ban.Ban;
 import ru.aniby.felmonpunishments.punishment.mute.Mute;
 import ru.aniby.felmonpunishments.punishment.warn.Warn;
 import ru.aniby.felmonpunishments.utils.CommandUtils;
-import ru.aniby.felmonpunishments.utils.TextUtils;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
 
 public class Punishment implements DatabaseHolderInterface {
     @Getter
@@ -59,7 +55,7 @@ public class Punishment implements DatabaseHolderInterface {
     }
 
     public long getRemainingTime() {
-        return this.getExpireTime() - TimeUtils.currentTime();
+        return this.getExpireTime() - FelmonUtils.Time.currentTime();
     }
 
     public PunishmentType getType() {
@@ -98,13 +94,13 @@ public class Punishment implements DatabaseHolderInterface {
             uniqueType += String.format(" #%s", this.getId());
             if (warn.getVictim() != null) {
                 reasonText = "Причина и условия снятия";
-                victim = TextUtils.formatForDiscord(warn.getVictim());
+                victim = FelmonUtils.Text.formatForDiscord(warn.getVictim());
             }
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(
-                        String.format("%s выдал вам %s", TextUtils.formatForDiscord(getAdmin()), uniqueType),
+                        String.format("%s выдал вам %s", FelmonUtils.Text.formatForDiscord(getAdmin()), uniqueType),
                         null,
                         CommandUtils.getHead(getAdmin())
                 ).addField(
@@ -130,13 +126,13 @@ public class Punishment implements DatabaseHolderInterface {
             uniqueType += String.format(" #%s", this.getId());
             if (warn.getVictim() != null) {
                 reasonText = "Причина и условия снятия";
-                victim = TextUtils.formatForDiscord(warn.getVictim());
+                victim = FelmonUtils.Text.formatForDiscord(warn.getVictim());
             }
         }
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(
-                        String.format("%s получил %s", TextUtils.formatForDiscord(getIntruder()), uniqueType),
+                        String.format("%s получил %s", FelmonUtils.Text.formatForDiscord(getIntruder()), uniqueType),
                         null,
                         CommandUtils.getHead(getIntruder())
                 ).addField(
@@ -152,7 +148,7 @@ public class Punishment implements DatabaseHolderInterface {
             );
         }
 
-        embedBuilder = embedBuilder.addField("Выдал", TextUtils.formatForDiscord(getAdmin()), true);
+        embedBuilder = embedBuilder.addField("Выдал", FelmonUtils.Text.formatForDiscord(getAdmin()), true);
 
         return embedBuilder.setColor(this.getType().getColor());
     }
@@ -164,37 +160,5 @@ public class Punishment implements DatabaseHolderInterface {
         CommandUtils.notifyInDirect(
                 intruder, this.getDirectComponent(), this.getDirectEmbed()
         );
-    }
-
-
-    @Override
-    public @NotNull JsonObject toJSON() {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("intruder", this.getIntruder());
-        jsonObject.addProperty("admin", this.getAdmin());
-        jsonObject.addProperty("reason", this.getReason());
-        if (this.getExpireTime() > 0L)
-            jsonObject.addProperty("expireTime", this.getExpireTime());
-        if (this.getRevokedBy() != null)
-            jsonObject.addProperty("revokedBy", this.getRevokedBy());
-        return jsonObject;
-    }
-
-    public static @Nullable Punishment parseJSON(JsonObject jsonObject) {
-        JsonElement intruder = jsonObject.get("intruder");
-        JsonElement admin = jsonObject.get("admin");
-        JsonElement reason = jsonObject.get("reason");
-        if (intruder == null || admin == null || reason == null) {
-            return null;
-        }
-        JsonElement expireTimeElement = jsonObject.get("expireTime");
-        long expireTime = expireTimeElement == null ? 0L : expireTimeElement.getAsLong();
-
-        Punishment punishment = new Punishment(intruder.getAsString(), admin.getAsString(), expireTime, reason.getAsString());
-
-        JsonElement revokedByElement = jsonObject.get("expireTime");
-        punishment.setRevokedBy(revokedByElement == null ? null : revokedByElement.getAsString());
-
-        return punishment;
     }
 }

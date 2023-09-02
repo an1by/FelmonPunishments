@@ -6,13 +6,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonapi.FelmonUtils;
+import ru.aniby.felmonpunishments.configuration.FPMainConfig;
 import ru.aniby.felmonpunishments.FelmonPunishments;
 import ru.aniby.felmonpunishments.commands.punishment.PunishmentsCommand;
-import ru.aniby.felmonpunishments.database.MySQL;
 import ru.aniby.felmonpunishments.player.FPPlayer;
 import ru.aniby.felmonpunishments.punishment.Punishment;
 import ru.aniby.felmonpunishments.punishment.PunishmentType;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,16 +36,18 @@ public class Ban extends Punishment {
     }
 
     public void kickIntruder() {
-        Player player = Bukkit.getPlayer(getIntruder());
-        if (player != null)
-            player.kick(getPunishmentMessage(), PlayerKickEvent.Cause.BANNED);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(FelmonPunishments.getInstance(), () -> {
+            Player player = Bukkit.getPlayer(getIntruder());
+            if (player != null)
+                player.kick(getPunishmentMessage(), PlayerKickEvent.Cause.BANNED);
+        }, 1L);
     }
 
     @Override
     public int searchInDatabase() {
         if (this.getId() > 0)
             return this.getId();
-        String str = "SELECT id FROM " + MySQL.Tables.getBans() + " WHERE intruder=? AND admin=? AND reason=? AND expireTime=? LIMIT 1";
+        String str = "SELECT id FROM " + FPMainConfig.MySQL.Tables.bans + " WHERE intruder=? AND admin=? AND reason=? AND expireTime=? LIMIT 1";
         int id = -1;
         try {
             PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str);
@@ -77,7 +79,7 @@ public class Ban extends Punishment {
             // Roles
             try {
                 // MySQL
-                String str = "INSERT INTO " + MySQL.Tables.getBans() + " (intruder, admin, reason, expireTime) VALUES  (?, ?, ?, ?);";
+                String str = "INSERT INTO " + FPMainConfig.MySQL.Tables.bans + " (intruder, admin, reason, expireTime) VALUES  (?, ?, ?, ?);";
                 PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str, Statement.RETURN_GENERATED_KEYS);
                 preparedStmt.setString(1, this.getIntruder());
                 preparedStmt.setString(2, this.getAdmin());
@@ -110,7 +112,7 @@ public class Ban extends Punishment {
     @Override
     public void revoke(String revokedBy) {
         try {
-            String str = "UPDATE " + MySQL.Tables.getBans() + " SET active = ? WHERE id = ?;";
+            String str = "UPDATE " + FPMainConfig.MySQL.Tables.bans + " SET active = ? WHERE id = ?;";
 
             PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str);
             preparedStmt.setBoolean(1, false);
@@ -137,7 +139,7 @@ public class Ban extends Punishment {
             component = component.append(
                     Component.text("\nИстекает: ", NamedTextColor.GREEN)
             ).append(
-                    Component.text(TimeUtils.toDisplay(this.getExpireTime()), NamedTextColor.WHITE)
+                    Component.text(FelmonUtils.Time.toDisplay(this.getExpireTime()), NamedTextColor.WHITE)
             );
         }
 //        component = component.append(
@@ -165,7 +167,7 @@ public class Ban extends Punishment {
             component = component.append(
                     Component.text("\nИстекает: ", NamedTextColor.AQUA)
             ).append(
-                    Component.text(TimeUtils.toDisplay(this.getExpireTime()), PunishmentsCommand.getTimeColor())
+                    Component.text(FelmonUtils.Time.toDisplay(this.getExpireTime()), PunishmentsCommand.getTimeColor())
             );
         }
         return component;

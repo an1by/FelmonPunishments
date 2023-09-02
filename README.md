@@ -13,148 +13,97 @@
 
 ---
 
-## Per-Server permissions:
-### Format: `<suffix>.<server>`
-### List:
-**Suffix:** `msvelocity.moderation`\
-**Commands:**\
-`/mute`, `/unmute`,\
-`/fine`, `/tempwarn`, `/warn`, `/unwarn`, \
-`/tempban`, `/permban`, `/unban`\
-**Example:** `msvelocity.moderation.create`
-
----
-
-**Suffix:** `msvelocity.government`\
-**Commands:** `/ticket`, `/unticket`\
-**Example:** `msvelocity.government.main`
-
----
-
 # Commands:
 
 ---
 
-## Global:
 
----
-
-**Usage:** `/msvreload`\
-**Aliases:** None\
-**Permission:** `msvelocity.admin.reload`\
-**Discord support:** ✅ (only with `Administrator` permission)
-
----
-
-## Discord:
-
----
-
-**Usage:**\
-In-game: `/link` (if lobby enabled)\
-In discord: `/link <NICKNAME> <CODE>`\
-**Aliases:** None\
-**Permission:** None\
-**Discord support:** ✅ (back-side usage)
-
----
-
-**Usage:** `/unlink <NICKNAME>`\
-**Aliases:** None\
-**Permission:** `msvelocity.admin.discord.unlink`\
-**Discord support:** ✅
-
----
-
-## Punishments:
-
----
 
 **Usage:** `/punishments` (for self)\
 **Aliases:** `/offenses`\
-**Permission:** `msvelocity.punishment.punishments`\
+**Permission:** `felmonpunishments.punishment.punishments`\
 **Discord support:** ❌ (punishment channel)
 
 ---
 
-**Usage:** `/punishments SERVER NICKNAME`\
-**Aliases:** `/offenses`\
-**Permission:** `msvelocity.punishment.punishments.other`\
+**Usage:** `/punishments <NICKNAME>`\
+**Aliases:** `/warns`, `/punishes`\
+**Permission:** `felmonpunishments.punishment.punishments.other`\
 **Discord support:** ❌ (punishment channel)
 
 ---
 
-**Usage:** `/unban SERVER NICKNAME`\
+**Usage:** `/unban <NICKNAME>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.ban.revoke`\
+**Permission:** `felmonpunishments.punishment.ban.revoke`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/unwarn SERVER NICKNAME NUMBER`\
+**Usage:** `/unwarn <NICKNAME> <NUMBER>`\
 **Aliases:** `/unfine`\
-**Permission:** `msvelocity.punishment.warn.revoke`\
+**Permission:** `felmonpunishments.punishment.warn.revoke`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/unticket NICKNAME NUMBER`\
+**Usage:** `/unticket <NICKNAME> <NUMBER>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.ticket.revoke`\
+**Permission:** `felmonpunishments.offense.ticket.revoke`\
 **Discord support:** ❌
 
 ---
 
-**Usage:** `/unmute SERVER NICKNAME`\
+**Usage:** `/unmute <NICKNAME>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.mute.revoke`\
+**Permission:** `felmonpunishments.punishment.mute.revoke`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/permban SERVER NICKNAME REASON`\
+**Usage:** `/permban <NICKNAME> <REASON>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.ban.permanent`\
+**Permission:** `felmonpunishments.punishment.ban.permanent`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/tempban SERVER NICKNAME TIME REASON`\
+**Usage:** `/tempban <NICKNAME> <TIME> <REASON>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.ban.temporary`\
+**Permission:** `felmonpunishments.punishment.ban.temporary`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/warn SERVER NICKNAME REASON`\
+**Usage:** `/warn <NICKNAME> <REASON>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.warn.permanent`\
+**Permission:** `felmonpunishments.punishment.warn.permanent`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/tempwarn SERVER NICKNAME TIME REASON`\
+**Usage:** `/tempwarn <NICKNAME> <TIME> <REASON>`\
 **Aliases:** `/owarn`\
-**Permission:** `msvelocity.punishment.warn.temporary`\
+**Permission:** `felmonpunishments.punishment.warn.temporary`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/fine SERVER NICKNAME VICTIM TIME REASON`\
+**Usage:** `/fine <NICKNAME> <VICTIM> <TIME> <REASON>`\
 **Aliases:** `/ywarn`\
-**Permission:** `msvelocity.punishment.warn.fine`\
+**Permission:** `felmonpunishments.punishment.warn.fine`\
 **Discord support:** ✅
 
 ---
 
-**Usage:** `/ticket NICKNAME VICTIM TIME REASON`\
+**Usage:** `/ticket <NICKNAME> <VICTIM> <TIME> <REASON>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.ticket`\
+**Permission:** `felmonpunishments.offense.ticket`\
 **Discord support:** ❌
 
 ---
 
-**Usage:** `/mute SERVER NICKNAME TIME REASON`\
+**Usage:** `/mute <NICKNAME> <TIME> <REASON>`\
 **Aliases:** None\
-**Permission:** `msvelocity.punishment.mute`\
+**Permission:** `felmonpunishments.punishment.mute`\
 **Discord support:** ✅

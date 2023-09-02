@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
 import ru.aniby.felmonpunishments.commands.FPInvocation;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
+import ru.aniby.felmonpunishments.configuration.FPPunishmentsConfig;
 import ru.aniby.felmonpunishments.punishment.PunishmentType;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
 import ru.aniby.felmonpunishments.punishment.warn.Warn;
@@ -37,14 +39,19 @@ public class UnticketCommand implements FPCommand {
         if (!(object instanceof FPInvocation invocation))
             return;
 
+        if (!FPPunishmentsConfig.Ticket.enabled) {
+            CommandUtils.send(object, FPMessagesConfig.disabledCommand);
+            return;
+        }
+
         String executor = argumenter.getExecutor(invocation);
         if (executor == null || !hasPermission(invocation))
             return;
 
-        String intruder = argumenter.getAnyString(invocation, "intruder");
+        String intruder = argumenter.getUsername(invocation, "intruder");
         Integer number = argumenter.getAnyInteger(invocation, "number");
         if (intruder == null || number == null) {
-            CommandUtils.send(invocation, CommandUtils.Message.WRONG_ARGUMENTS);
+            CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }
 
@@ -53,7 +60,7 @@ public class UnticketCommand implements FPCommand {
         ).findFirst().orElse(null);
 
         if (warn == null) {
-            CommandUtils.send(invocation, CommandUtils.Message.PUNISHMENT_NOT_EXISTS);
+            CommandUtils.send(object, FPMessagesConfig.punishmentNotExists);
             return;
         }
         // Execute
@@ -69,8 +76,8 @@ public class UnticketCommand implements FPCommand {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> list = new ArrayList<>();
         switch (args.length) {
-            case 0 -> list = CommandUtils.Completer.punishmentPlayers(WarnManager.getPlayerWarns(), "");
-            case 1 -> list = CommandUtils.Completer.punishmentPlayers(WarnManager.getPlayerWarns(), args[0]);
+            case 0 -> list = CommandUtils.punishmentPlayersCompleter(WarnManager.getPlayerWarns(), "");
+            case 1 -> list = CommandUtils.punishmentPlayersCompleter(WarnManager.getPlayerWarns(), args[0]);
             case 2 -> {
                 for (Warn warn : WarnManager.getPerPlayerWarns(args[0])) {
                     String strId = String.valueOf(warn.getId());

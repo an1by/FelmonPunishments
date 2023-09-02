@@ -6,9 +6,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonapi.FelmonUtils;
 import ru.aniby.felmonpunishments.punishment.warn.Warn;
 import ru.aniby.felmonpunishments.utils.CommandUtils;
-import ru.aniby.felmonpunishments.utils.TextUtils;
 
 import java.awt.*;
 
@@ -56,7 +56,7 @@ public record RevokedPunishment(@Getter @NotNull Punishment instance) {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(
-                        String.format(authorText, TextUtils.formatForDiscord(this.instance.getIntruder()), uniqueType),
+                        String.format(authorText, FelmonUtils.Text.formatForDiscord(this.instance.getIntruder()), uniqueType),
                         null,
                         CommandUtils.getHead(this.instance.getAdmin())
                 );
@@ -64,7 +64,7 @@ public record RevokedPunishment(@Getter @NotNull Punishment instance) {
         if (!admin)
             return embedBuilder.setColor(revokedTicketColor);
 
-        return embedBuilder.addField("Снял", TextUtils.formatForDiscord(this.instance.getRevokedBy()), true)
+        return embedBuilder.addField("Снял", FelmonUtils.Text.formatForDiscord(this.instance.getRevokedBy()), true)
                 .setColor(Color.GREEN);
     }
 
@@ -84,7 +84,7 @@ public record RevokedPunishment(@Getter @NotNull Punishment instance) {
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(
-                        String.format(authorText, TextUtils.formatForDiscord(this.instance.getIntruder()), uniqueType),
+                        String.format(authorText, FelmonUtils.Text.formatForDiscord(this.instance.getIntruder()), uniqueType),
                         null,
                         CommandUtils.getHead(this.instance.getIntruder())
                 );
@@ -92,7 +92,7 @@ public record RevokedPunishment(@Getter @NotNull Punishment instance) {
         if (!admin)
             return embedBuilder.setColor(revokedTicketColor);
 
-        return embedBuilder.addField("Снял", TextUtils.formatForDiscord(this.instance.getRevokedBy()), true)
+        return embedBuilder.addField("Снял", FelmonUtils.Text.formatForDiscord(this.instance.getRevokedBy()), true)
                 .setColor(Color.GREEN);
     }
 

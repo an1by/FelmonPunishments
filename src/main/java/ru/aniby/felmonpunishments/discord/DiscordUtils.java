@@ -7,8 +7,10 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import ru.aniby.felmonpunishments.FelmonPunishments;
+import ru.aniby.felmonpunishments.commands.FPCommand;
 
 public class DiscordUtils {
     @Getter
@@ -53,15 +55,13 @@ public class DiscordUtils {
     public static void initCommands() {
         Guild guild = linkedGuild.getGuild();
 
-        for (Command command : guild.retrieveCommands().complete()) {
-            guild.deleteCommandById(command.getId()).queue();
+        CommandListUpdateAction updateAction = guild.updateCommands();
+        for (FPCommand command : FelmonPunishments.getCommands()) {
+            if (command.isDiscordAvailable())
+                updateAction = updateAction.addCommands(
+                        command.slashCommandData()
+                );
         }
-
-        FelmonPunishments.getCommands().forEach(
-                msCommand -> {
-                    if (msCommand.isDiscordAvailable())
-                        guild.upsertCommand(msCommand.slashCommandData()).queue();
-                }
-        );
+        updateAction.queue();
     }
 }

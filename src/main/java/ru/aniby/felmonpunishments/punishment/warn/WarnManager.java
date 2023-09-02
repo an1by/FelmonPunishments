@@ -2,11 +2,13 @@ package ru.aniby.felmonpunishments.punishment.warn;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonapi.FelmonUtils;
+import ru.aniby.felmonpunishments.configuration.FPMainConfig;
 import ru.aniby.felmonpunishments.FelmonPunishments;
-import ru.aniby.felmonpunishments.database.MySQL;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
 import ru.aniby.felmonpunishments.punishment.ban.Ban;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
+import ru.aniby.felmonpunishments.punishment.ban.BanManager;
+import ru.aniby.felmonpunishments.punishment.mute.MuteManager;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,8 +60,8 @@ public class WarnManager {
                         red_warn.notifyEverywhere();
                         red.add(red_warn);
 
-                        long time = TimeUtils.currentTime() + (warn.getTotalTime() <= 0L
-                                ? TimeUtils.parseTime("1d")
+                        long time = FelmonUtils.Time.currentTime() + (warn.getTotalTime() <= 0L
+                                ? FelmonUtils.Time.parseTime("1d")
                                 : warn.getTotalTime());
                         Warn yellow_warn = Warn.createFine(
                                 username, "Система", time, warn.getVictim(),
@@ -100,6 +102,9 @@ public class WarnManager {
             for (Warn w : getPerPlayerWarns(username)) {
                 w.revoke("Система");
             }
+            MuteManager.getPlayerMutes().stream()
+                    .filter(m -> m.getIntruder().equals(username)).findFirst()
+                    .ifPresent(m -> m.revoke("Система"));
             Ban ban = new Ban(
                     username, "Система", reasonEx, 0L, true
             );
@@ -115,7 +120,7 @@ public class WarnManager {
     }
 
     public static void load() {
-        String query = "SELECT * FROM " + MySQL.Tables.getWarns() + " WHERE active = ?;";
+        String query = "SELECT * FROM " + FPMainConfig.MySQL.Tables.warns + " WHERE active = ?;";
         try {
             PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(query);
             preparedStmt.setBoolean(1, true);
@@ -143,7 +148,7 @@ public class WarnManager {
     }
 
     public static void createTableIfNotExists() {
-        String query = "CREATE TABLE IF NOT EXISTS `" + MySQL.Tables.getWarns() + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `victim` VARCHAR(64) DEFAULT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `startTime` BIGINT DEFAULT 0, `expireTime` BIGINT DEFAULT 10, PRIMARY KEY (`id`) );";
+        String query = "CREATE TABLE IF NOT EXISTS `" + FPMainConfig.MySQL.Tables.warns + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `victim` VARCHAR(64) DEFAULT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `startTime` BIGINT DEFAULT 0, `expireTime` BIGINT DEFAULT 10, PRIMARY KEY (`id`) );";
         try {
             Statement stmt = FelmonPunishments.getDatabaseConnection().createStatement();
             stmt.executeUpdate(query);

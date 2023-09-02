@@ -4,6 +4,8 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
+import ru.aniby.felmonpunishments.configuration.FPPunishmentsConfig;
 import ru.aniby.felmonpunishments.punishment.ban.Ban;
 import ru.aniby.felmonpunishments.punishment.ban.BanManager;
 import ru.aniby.felmonpunishments.utils.CommandUtils;
@@ -23,15 +25,21 @@ public class TempbanCommand implements FPCommand {
     public void execute(Object object) {
         if (!isRightObject(object))
             return;
+
+        if (!FPPunishmentsConfig.Tempban.enabled) {
+            CommandUtils.send(object, FPMessagesConfig.disabledCommand);
+            return;
+        }
+
         String executor = argumenter.getExecutor(object);
         if (executor == null || !hasPermission(object))
             return;
 
-        String intruder = argumenter.getAnyString(object, "intruder");
+        String intruder = argumenter.getUsername(object, "intruder");
         Long time = argumenter.getTime(object);
         String reason = argumenter.getReason(object);
         if (intruder == null || time == null || reason == null) {
-            CommandUtils.send(object, CommandUtils.Message.WRONG_ARGUMENTS);
+            CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }
 
@@ -41,14 +49,14 @@ public class TempbanCommand implements FPCommand {
 //        }
 
         if (BanManager.getBan(intruder) != null) {
-            CommandUtils.send(object, CommandUtils.Message.NOW_BANNED);
+            CommandUtils.send(object, FPMessagesConfig.alreadyBanned);
             return;
         }
 
         // Execute
         Ban ban = new Ban(intruder, executor, reason, time, true);
         if (ban.getId() <= 0) {
-            CommandUtils.send(object, CommandUtils.Message.EXISTS_SIMILAR);
+            CommandUtils.send(object, FPMessagesConfig.existsSimilar);
             return;
         }
         ban.kickIntruder();

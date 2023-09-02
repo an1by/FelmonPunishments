@@ -2,12 +2,13 @@ package ru.aniby.felmonpunishments.commands.punishment;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import ru.aniby.felmonpunishments.FelmonPunishments;
+import ru.aniby.felmonapi.FelmonUtils;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
+import ru.aniby.felmonpunishments.configuration.FPPunishmentsConfig;
 import ru.aniby.felmonpunishments.punishment.warn.Warn;
 import ru.aniby.felmonpunishments.utils.CommandUtils;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
 
 public class FineCommand implements FPCommand {
     @Getter
@@ -24,15 +25,21 @@ public class FineCommand implements FPCommand {
     public void execute(Object object) {
         if (!isRightObject(object))
             return;
+
+        if (!FPPunishmentsConfig.Fine.enabled) {
+            CommandUtils.send(object, FPMessagesConfig.disabledCommand);
+            return;
+        }
+
         String executor = argumenter.getExecutor(object);
         if (executor == null || !hasPermission(object))
             return;
-        String intruder = argumenter.getAnyString(object, "intruder");
-        String victim = argumenter.getAnyString(object, "victim");
+        String intruder = argumenter.getUsername(object, "intruder");
+        String victim = argumenter.getUsername(object, "victim");
         Long time = argumenter.getTime(object);
         String reason = argumenter.getReason(object);
         if (intruder == null || victim == null || time == null || reason == null) {
-            CommandUtils.send(object, CommandUtils.Message.WRONG_ARGUMENTS);
+            CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }
 
@@ -41,8 +48,8 @@ public class FineCommand implements FPCommand {
 //            return;
 //        }
 
-        if (time < TimeUtils.currentTime() + TimeUtils.day) {
-            CommandUtils.send(object, CommandUtils.Message.DAY_OR_MORE);
+        if (time < FelmonUtils.Time.currentTime() + FelmonUtils.Time.day) {
+            CommandUtils.send(object, FPMessagesConfig.dayOrMore);
             return;
         }
 
@@ -51,7 +58,7 @@ public class FineCommand implements FPCommand {
                 intruder, executor, time, victim, reason, true
         );
         if (warn.getId() <= 0) {
-            CommandUtils.send(object, CommandUtils.Message.EXISTS_SIMILAR);
+            CommandUtils.send(object, FPMessagesConfig.existsSimilar);
             return;
         }
 

@@ -30,6 +30,16 @@ public enum PunishmentType {
         return color == null ? Color.decode(this.textColor.asHexString()) : color;
     }
 
+    public String getChannelName() {
+        String name = "warns";
+        switch (this) {
+            case MUTE -> name = "mutes";
+            case PERMANENT_BAN, TEMPORARY_BAN -> name = "bans";
+            case TICKET -> name = "tickets";
+        }
+        return name;
+    }
+
     PunishmentType(@NotNull String name, @NotNull TextColor textColor) {
         this.name = name;
         this.textColor = textColor;

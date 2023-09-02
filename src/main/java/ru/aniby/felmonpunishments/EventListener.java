@@ -1,100 +1,40 @@
-package ru.aniby.msvelocity;
+package ru.aniby.felmonpunishments;
 
-import com.velocitypowered.api.event.PostOrder;
-import com.velocitypowered.api.event.ResultedEvent;
-import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.connection.LoginEvent;
-import com.velocitypowered.api.event.player.PlayerChatEvent;
-import com.velocitypowered.api.event.player.ServerConnectedEvent;
-import com.velocitypowered.api.event.player.ServerPreConnectEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
-import com.velocitypowered.api.proxy.Player;
-import com.velocitypowered.api.proxy.server.RegisteredServer;
-import net.kyori.adventure.text.Component;
-import org.jetbrains.annotations.NotNull;
-import ru.aniby.msvelocity.commands.discord.LinkCommand;
-import ru.aniby.msvelocity.database.MySQL;
-import ru.aniby.msvelocity.punishment.ban.Ban;
-import ru.aniby.msvelocity.punishment.ban.BanManager;
-import ru.aniby.msvelocity.punishment.mute.Mute;
-import ru.aniby.msvelocity.punishment.mute.MuteManager;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import ru.aniby.felmonpunishments.punishment.ban.Ban;
+import ru.aniby.felmonpunishments.punishment.ban.BanManager;
+import ru.aniby.felmonpunishments.punishment.mute.Mute;
+import ru.aniby.felmonpunishments.punishment.mute.MuteManager;
 
 import java.util.Objects;
 
-public class EventListener {
-    @Subscribe(order = PostOrder.FIRST)
-    public void onPlayerChat(PlayerChatEvent event) {
+public class EventListener implements Listener {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
-        String username = player.getUsername();
+        String username = player.getName();
         Mute mute = MuteManager.getPlayerMutes().stream().filter(
                 m -> Objects.equals(m.getIntruder(), username)
         ).findAny().orElse(null);
         if (mute != null) {
-            event.setResult(PlayerChatEvent.ChatResult.denied());
+            event.setCancelled(true);
             player.sendMessage(mute.onChatMessage());
         }
     }
 
-    @Subscribe
-    public void onPlayer(ServerConnectedEvent event) {
-        Player player = event.getPlayer();
-        RegisteredServer previousServer = event.getPreviousServer().orElse(null);
-        if (previousServer == null
-                && !MSVelocity.getDiscordBot().isInLobbyLinking()) {
-            Component component = LinkCommand.linking(player.getUsername());
-            if (component != null) {
-//                event.setResult(ServerPreConnectEvent.ServerResult.denied());
-                player.disconnect(component);
-                return;
-            }
-        }
-    }
-
-    @Subscribe(order = PostOrder.FIRST)
-    public void onPlayerPreConnect(ServerPreConnectEvent event) {
-        Player player = event.getPlayer();
-        String username = player.getUsername();
-        RegisteredServer server = event.getOriginalServer();
-        if (server != null) {
-            String serverName = server.getServerInfo().getName();
-            Ban ban = BanManager.getBan(username, serverName);
-            if (ban != null) {
-                event.setResult(ServerPreConnectEvent.ServerResult.denied());
-                ban.kickIntruder();
-                return;
-            }
-        }
-
-
-        RegisteredServer previousServer = event.getPreviousServer();
-        if (previousServer != null
-                && previousServer.getServerInfo().getName().equalsIgnoreCase("lobby")
-                && MSVelocity.getDiscordBot().isInLobbyLinking()) {
-            Component component = LinkCommand.linking(player.getUsername());
-            if (component != null) {
-                event.setResult(ServerPreConnectEvent.ServerResult.denied());
-                player.sendMessage(component);
-                return;
-            }
-        }
-    }
-
-    @Subscribe(order = PostOrder.FIRST)
-    public void onPlayerPreConnect(LoginEvent event) {
-        Player player = event.getPlayer();
-        String username = player.getUsername();
-        String serverName = "all";
-        Ban ban = BanManager.getBan(username, serverName);
+    @EventHandler
+    public void onPlayerPreConnect(AsyncPlayerPreLoginEvent event) {
+        String username = event.getName();
+        
+        Ban ban = BanManager.getBan(username);
         if (ban != null) {
-            event.setResult(ResultedEvent.ComponentResult.denied(
-                    ban.getPunishmentMessage()
-            ));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, ban.getPunishmentMessage());
             return;
         }
-    }
-
-    @Subscribe
-    public void onProxyShutdown(@NotNull ProxyShutdownEvent event) {
-        MySQL.disconnect(MSVelocity.getDatabaseConnection());
     }
 }

@@ -1,0 +1,87 @@
+name: FelmonPunishments
+version: '${project.version}'
+main: ru.aniby.felmonpunishments.FelmonPunishments
+api-version: '1.20'
+authors: [An1by]
+softdepend:  [FelmonAPI, DiscordSRV, LuckPerms]
+description: Unique punishments plugin ♥
+website: https://aniby.ru/
+
+commands:
+  punishments:
+    description: "Позволяет посмотреть наказания игрока"
+    usage: "/punishments <nickname>"
+    permission: "felmonpunishments.punishment.punishments"
+    aliases:
+      - warns
+      - punishes
+  permban:
+    description: "Позволяет забанить игрока до момента ручного разбана"
+    usage: "/permban <intruder> <time> <reason>"
+    permission: "felmonpunishments.punishment.ban.permanent"
+    aliases:
+      - fpban
+      - ban
+  tempban:
+    description: "Позволяет забанить игрока до истечения указанного времени"
+    usage: "/tempban <intruder> <time> <reason>"
+    permission: "felmonpunishments.punishment.ban.temporary"
+    aliases:
+      - fptempban
+  unban:
+    description: "Позволяет разбанить игрока"
+    usage: "/unban <intruder> <number>"
+    permission: "felmonpunishments.punishment.ban.revoke"
+    aliases:
+      - fpunban
+  warn:
+    description: "Позволяет выдать предупреждение игроку"
+    usage: "/warn <intruder> <reason>"
+    permission: "felmonpunishments.punishment.warn.permanent"
+    aliases:
+      - fpwarn
+  tempwarn:
+    description: "Позволяет выдать временное предупреждение игроку"
+    usage: "/tempwarn <intruder> <time> <reason>"
+    permission: "felmonpunishments.punishment.warn.temporary"
+    aliases:
+      - fptempwarn
+      - owarn
+  fine:
+    description: "Позволяет выписать возобновляемый штраф игроку"
+    usage: "/fine <intruder> <victim> <time> <reason>"
+    permission: "felmonpunishments.punishment.warn.fine"
+    aliases:
+      - fpfine
+      - ywarn
+  unwarn:
+    description: "Позволяет снять предупреждение игрока"
+    usage: "/unwarn <intruder> <number>"
+    permission: "felmonpunishments.punishment.warn.revoke"
+    aliases:
+      - fpunwarn
+      - unfine
+  mute:
+    description: "Позволяет выдать мут игроку в игре"
+    usage: "/mute <intruder> <time> <reason>"
+    permission: "felmonpunishments.punishment.mute"
+    aliases:
+      - fpmute
+  unmute:
+    description: "Позволяет снять мут игроку в игре"
+    usage: "/unmute <intruder> <number>"
+    permission: "felmonpunishments.punishment.mute.revoke"
+    aliases:
+      - fpunmute
+  ticket:
+    description: "Позволяет выписать штраф игроку"
+    usage: "/ticket <intruder> <victim> <time> <reason>"
+    permission: "felmonpunishments.offense.ticket"
+    aliases:
+      - fpticket
+  unticket:
+    description: "Позволяет снять штраф игроку"
+    usage: "/unticket <intruder> <number>"
+    permission: "felmonpunishments.offense.ticket.revoke"
+    aliases:
+      - fpunticket

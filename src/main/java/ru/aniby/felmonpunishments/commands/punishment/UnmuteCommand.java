@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
 import ru.aniby.felmonpunishments.punishment.mute.Mute;
 import ru.aniby.felmonpunishments.punishment.mute.MuteManager;
@@ -32,9 +33,9 @@ public class UnmuteCommand implements FPCommand {
         String executor = argumenter.getExecutor(object);
         if (executor == null || !hasPermission(object))
             return;
-        String intruder = argumenter.getAnyString(object, "intruder");
+        String intruder = argumenter.getUsername(object, "intruder");
         if (intruder == null) {
-            CommandUtils.send(object, CommandUtils.Message.WRONG_ARGUMENTS);
+            CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }
 
@@ -43,7 +44,7 @@ public class UnmuteCommand implements FPCommand {
                 b -> b.getIntruder().equals(intruder)
         ).findFirst().orElse(null);
         if (mute == null) {
-            CommandUtils.send(object, CommandUtils.Message.PUNISHMENT_NOT_EXISTS);
+            CommandUtils.send(object, FPMessagesConfig.punishmentNotExists);
             return;
         }
         mute.revoke(executor);
@@ -58,8 +59,8 @@ public class UnmuteCommand implements FPCommand {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> list = new ArrayList<>();
         switch (args.length) {
-            case 0 -> list = CommandUtils.Completer.punishmentPlayers(MuteManager.getPlayerMutes(), "");
-            case 1 -> list = CommandUtils.Completer.punishmentPlayers(MuteManager.getPlayerMutes(), args[0]);
+            case 0 -> list = CommandUtils.punishmentPlayersCompleter(MuteManager.getPlayerMutes(), "");
+            case 1 -> list = CommandUtils.punishmentPlayersCompleter(MuteManager.getPlayerMutes(), args[0]);
             default -> {}
         }
         return list;

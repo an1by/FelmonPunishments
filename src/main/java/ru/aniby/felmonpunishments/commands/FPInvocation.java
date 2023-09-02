@@ -4,13 +4,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public class MSInvocation {
+public class FPInvocation {
     private final @NotNull CommandSender source;
     private final @NotNull Command command;
     private final @NotNull String label;
     private final String[] arguments;
 
-    public MSInvocation(@NotNull CommandSender source, @NotNull Command command, @NotNull String label, String[] arguments) {
+    public FPInvocation(@NotNull CommandSender source, @NotNull Command command, @NotNull String label, String[] arguments) {
         this.source = source;
         this.command = command;
         this.label = label;

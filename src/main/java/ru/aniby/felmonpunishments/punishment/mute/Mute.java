@@ -4,13 +4,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonapi.FelmonUtils;
+import ru.aniby.felmonpunishments.configuration.FPMainConfig;
 import ru.aniby.felmonpunishments.FelmonPunishments;
 import ru.aniby.felmonpunishments.commands.punishment.PunishmentsCommand;
-import ru.aniby.felmonpunishments.database.MySQL;
 import ru.aniby.felmonpunishments.player.FPPlayer;
 import ru.aniby.felmonpunishments.punishment.Punishment;
 import ru.aniby.felmonpunishments.punishment.PunishmentType;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +38,7 @@ public class Mute extends Punishment {
     public int searchInDatabase() {
         if (this.getId() > 0)
             return this.getId();
-        String str = "SELECT id FROM " + MySQL.Tables.getMutes() + " WHERE intruder=? AND admin=? AND reason=? AND expireTime=? LIMIT 1";
+        String str = "SELECT id FROM " + FPMainConfig.MySQL.Tables.mutes + " WHERE intruder=? AND admin=? AND reason=? AND expireTime=? LIMIT 1";
         int id = -1;
         try {
             PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str);
@@ -76,7 +76,7 @@ public class Mute extends Punishment {
         int id = searchInDatabase();
         try {
             if (id <= 0) {
-                String str = "INSERT INTO " + MySQL.Tables.getMutes() + " (intruder, admin, reason, expireTime) VALUES  (?, ?, ?, ?);";
+                String str = "INSERT INTO " + FPMainConfig.MySQL.Tables.mutes + " (intruder, admin, reason, expireTime) VALUES  (?, ?, ?, ?);";
                 PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str, Statement.RETURN_GENERATED_KEYS);
                 preparedStmt.setString(1, this.getIntruder());
                 preparedStmt.setString(2, this.getAdmin());
@@ -101,7 +101,7 @@ public class Mute extends Punishment {
     @Override
     public void revoke(String revokedBy) {
         try {
-            String str = "UPDATE " + MySQL.Tables.getMutes() + " SET active = ? WHERE id = ?;";
+            String str = "UPDATE " + FPMainConfig.MySQL.Tables.mutes + " SET active = ? WHERE id = ?;";
 
             PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str);
             preparedStmt.setBoolean(1, false);
@@ -118,7 +118,7 @@ public class Mute extends Punishment {
     }
 
     public Component onChatMessage() {
-        String text = String.format("&cУ вас мут! Истекает: %s", TimeUtils.toDisplay(this.getExpireTime()));
+        String text = String.format("&cУ вас мут! Истекает: %s", FelmonUtils.Time.toDisplay(this.getExpireTime()));
         return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
     }
 
@@ -131,7 +131,7 @@ public class Mute extends Punishment {
         ).append(
                 Component.text("\nИстекает: ", NamedTextColor.GREEN)
         ).append(
-                Component.text(TimeUtils.toDisplay(this.getExpireTime()), NamedTextColor.WHITE)
+                Component.text(FelmonUtils.Time.toDisplay(this.getExpireTime()), NamedTextColor.WHITE)
         );
     }
 
@@ -150,7 +150,7 @@ public class Mute extends Punishment {
         ).append(
                 Component.text("\nИстекает: ", NamedTextColor.AQUA)
         ).append(
-                Component.text(TimeUtils.toDisplay(this.getExpireTime()), PunishmentsCommand.getTimeColor())
+                Component.text(FelmonUtils.Time.toDisplay(this.getExpireTime()), PunishmentsCommand.getTimeColor())
         );
         return component;
     }

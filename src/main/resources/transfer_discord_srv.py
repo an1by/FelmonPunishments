@@ -26,7 +26,7 @@ curr_time = round(time.time() * 1000)
 usercache = {}
 
 # User Cache
-with open("./data/usercache.json", encoding="utf8") as usercacheFile:
+with open("../../../../MSVelocity/src/main/resources/data/usercache.json", encoding="utf8") as usercacheFile:
     data = json.loads(usercacheFile.read())
     for i in data:
         usercache[i["uuid"]] = i["name"]
@@ -35,7 +35,7 @@ to_input = {}
 
 # linked accounts
 linkTable = {}
-with open("./data/linkedaccounts.json", encoding="utf8") as banfile:
+with open("../../../../MSVelocity/src/main/resources/data/linkedaccounts.json", encoding="utf8") as banfile:
     data = json.loads(banfile.read())
     for discordId in data:
         uuid = data[discordId]

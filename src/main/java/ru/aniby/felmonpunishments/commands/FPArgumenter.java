@@ -5,13 +5,15 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonapi.FelmonUtils;
 import ru.aniby.felmonpunishments.FelmonPunishments;
 import ru.aniby.felmonpunishments.player.FPPlayer;
-import ru.aniby.felmonpunishments.utils.TextUtils;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class FPArgumenter {
     @Getter
@@ -73,6 +75,35 @@ public class FPArgumenter {
         return null;
     }
 
+    public @Nullable String getUsername(@NotNull Object object, @NotNull String key) {
+        String nickname = null;
+        if (object instanceof FPInvocation invocation) {
+            int index = getArgumentIndex(key);
+            if (invocation.arguments().length > index && index >= 0) {
+                try {
+                    nickname = invocation.arguments()[index];
+                } catch (NumberFormatException ignored) {}
+            }
+        } else if (object instanceof SlashCommandInteractionEvent event) {
+            OptionMapping option = event.getOption(key);
+            if (option != null){
+                String data = null;
+                try {
+                    data = option.getAsString();
+                } catch (IllegalStateException ignored) {}
+                if (data != null) {
+                    if (data.contains("@") && data.length() > 16) {
+                        data = data.replaceAll("[<@>]", "");
+                        FPPlayer player = FPPlayer.getWithDiscordId(data);
+                        if (player != null)
+                            nickname = player.getUsername();
+                    } else nickname = data;
+                }
+            }
+        }
+        return nickname;
+    }
+
     public @Nullable String getAnyString(@NotNull Object object, @NotNull String key) {
         String data = null;
         if (object instanceof FPInvocation invocation) {
@@ -123,6 +154,12 @@ public class FPArgumenter {
         return data;
     }
 
+    public static @NotNull String reasonFormatting(int startsFrom, @NotNull String... arguments) {
+        List<String> reasonList = new ArrayList<>(Arrays.asList(arguments));
+        reasonList.subList(0, startsFrom).clear();
+        return String.join(" ", reasonList);
+    }
+
     public @Nullable String getReason(@NotNull Object object) {
         FPCommandOption msOption = FPCommandOption.REASON;
         String text = null;
@@ -130,7 +167,7 @@ public class FPArgumenter {
             if (object instanceof FPInvocation invocation) {
                 int index = this.argumentList.size() - 1;
                 if (invocation.arguments().length > index) {
-                    text = TextUtils.reasonFormatting(index, invocation.arguments());
+                    text = reasonFormatting(index, invocation.arguments());
                 }
             } else if (object instanceof SlashCommandInteractionEvent event) {
                 OptionMapping option = event.getOption(msOption.getName());
@@ -147,9 +184,9 @@ public class FPArgumenter {
     public @Nullable Long getTime(@NotNull Object object) {
         String timeString = getAnyString(object, "time");
         if (timeString != null) {
-            long timestamp = TimeUtils.parseTime(timeString);
+            long timestamp = FelmonUtils.Time.parseTime(timeString);
             if (timestamp > 0) {
-                return TimeUtils.currentTime() + timestamp + 60000L;
+                return FelmonUtils.Time.currentTime() + timestamp + 60000L;
             }
         }
         return null;

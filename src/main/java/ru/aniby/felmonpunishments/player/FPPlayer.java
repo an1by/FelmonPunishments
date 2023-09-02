@@ -3,6 +3,7 @@ package ru.aniby.felmonpunishments.player;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import lombok.Getter;
+import lombok.Setter;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
@@ -18,10 +19,13 @@ import ru.aniby.felmonpunishments.discord.DiscordUtils;
 import ru.aniby.felmonpunishments.discord.FPLinkedGuild;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class FPPlayer {
     @Getter
     private final @NotNull String username;
+    @Setter
+    private @Nullable String discordId;
 
     public @Nullable User getLuckpermsUser() {
         return FelmonPunishments.getLuckPerms().getUserManager().getLoadedUsers()
@@ -45,6 +49,23 @@ public class FPPlayer {
         return username == null ? null : new FPPlayer(username);
     }
 
+    public static FPPlayer getWithDiscordId(@Nullable String id) {
+        FPPlayer player = null;
+
+        AccountLinkManager accountLinkManager = DiscordSRV.getPlugin().getAccountLinkManager();
+        if (accountLinkManager != null) {
+            UUID uuid = accountLinkManager.getUuid(id);
+            if (uuid != null) {
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+                if (offlinePlayer.getName() != null) {
+                    player = new FPPlayer(offlinePlayer.getName());
+                    player.setDiscordId(id);
+                }
+            }
+        }
+        return player;
+    }
+
     private FPPlayer(@NotNull String username) {
         this.username = username;
     }
@@ -65,13 +86,18 @@ public class FPPlayer {
     }
 
     public @Nullable String getDiscordId() {
-        OfflinePlayer player = getOfflinePlayer();
-        if (player != null) {
-            AccountLinkManager accountLinkManager = DiscordSRV.getPlugin().getAccountLinkManager();
-            if (accountLinkManager != null)
-                return accountLinkManager.getDiscordId(player.getUniqueId());
+        if (discordId == null) {
+            OfflinePlayer player = getOfflinePlayer();
+            if (player != null) {
+                AccountLinkManager accountLinkManager = DiscordSRV.getPlugin().getAccountLinkManager();
+                if (accountLinkManager != null) {
+                    String id = accountLinkManager.getDiscordId(player.getUniqueId());
+                    if (id != null && !id.isEmpty())
+                        discordId = id;
+                }
+            }
         }
-        return null;
+        return discordId;
     }
 
     public void punishWithRole(@NotNull String roleName) {

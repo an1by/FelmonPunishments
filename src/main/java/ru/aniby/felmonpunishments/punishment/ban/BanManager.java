@@ -2,8 +2,8 @@ package ru.aniby.felmonpunishments.punishment.ban;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonpunishments.configuration.FPMainConfig;
 import ru.aniby.felmonpunishments.FelmonPunishments;
-import ru.aniby.felmonpunishments.database.MySQL;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
 
 import java.sql.*;
@@ -36,7 +36,7 @@ public class BanManager {
     }
 
     public static void load() {
-        String query = "SELECT * FROM " + MySQL.Tables.getBans() + " WHERE active = ?;";
+        String query = "SELECT * FROM " + FPMainConfig.MySQL.Tables.bans + " WHERE active = ?;";
         try {
             PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(query);
             preparedStmt.setBoolean(1, true);
@@ -72,7 +72,7 @@ public class BanManager {
     }
 
     public static boolean createTableIfNotExists() {
-        String query = "CREATE TABLE IF NOT EXISTS `" + MySQL.Tables.getBans() + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `expireTime` BIGINT DEFAULT 0, PRIMARY KEY (`id`) );";
+        String query = "CREATE TABLE IF NOT EXISTS `" + FPMainConfig.MySQL.Tables.bans + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `expireTime` BIGINT DEFAULT 0, PRIMARY KEY (`id`) );";
         try {
             Statement stmt = FelmonPunishments.getDatabaseConnection().createStatement();
             stmt.executeUpdate(query);

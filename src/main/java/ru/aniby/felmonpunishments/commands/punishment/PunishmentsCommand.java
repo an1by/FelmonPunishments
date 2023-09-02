@@ -6,9 +6,11 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import ru.aniby.felmonapi.FelmonUtils;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
 import ru.aniby.felmonpunishments.commands.FPInvocation;
+import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
 import ru.aniby.felmonpunishments.punishment.ban.Ban;
 import ru.aniby.felmonpunishments.punishment.ban.BanManager;
 import ru.aniby.felmonpunishments.punishment.mute.Mute;
@@ -16,7 +18,6 @@ import ru.aniby.felmonpunishments.punishment.mute.MuteManager;
 import ru.aniby.felmonpunishments.punishment.warn.Warn;
 import ru.aniby.felmonpunishments.punishment.warn.WarnManager;
 import ru.aniby.felmonpunishments.utils.CommandUtils;
-import ru.aniby.felmonpunishments.utils.TimeUtils;
 
 public class PunishmentsCommand implements FPCommand {
     @Getter
@@ -45,7 +46,7 @@ public class PunishmentsCommand implements FPCommand {
         if (invocation.arguments().length == 1) {
             if (!invocation.source().hasPermission(getPermission() + ".other"))
                 return;
-            intruder = argumenter.getAnyString(invocation, "player");
+            intruder = argumenter.getUsername(invocation, "player");
         }
         else if (executor != null && invocation.source() instanceof Player player) {
             intruder = player.getName();
@@ -54,7 +55,7 @@ public class PunishmentsCommand implements FPCommand {
         }
 
         if (intruder == null) {
-            CommandUtils.send(invocation, CommandUtils.Message.WRONG_ARGUMENTS);
+            CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }
         Component component = Component.text("Наказания игрока " + intruder, NamedTextColor.GREEN);
@@ -69,7 +70,7 @@ public class PunishmentsCommand implements FPCommand {
         if (ban != null) {
             if (ban.getExpireTime() > 0L) {
                 component = component.append(
-                        Component.text("до " + TimeUtils.toDisplay(ban.getExpireTime()) + " ", timeColor)
+                        Component.text("до " + FelmonUtils.Time.toDisplay(ban.getExpireTime()) + " ", timeColor)
                 );
             }
             component = component.append(
@@ -115,7 +116,7 @@ public class PunishmentsCommand implements FPCommand {
         );
         if (mute != null) {
             component = component.append(
-                    Component.text("до " + TimeUtils.toDisplay(mute.getExpireTime()), timeColor)
+                    Component.text("до " + FelmonUtils.Time.toDisplay(mute.getExpireTime()), timeColor)
             ).append(
                     Component.text(" от ", NamedTextColor.WHITE)
             ).append(
