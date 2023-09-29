@@ -45,12 +45,15 @@ public class Ban extends Punishment {
 
     @Override
     public int searchInDatabase() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return -1;
+
         if (this.getId() > 0)
             return this.getId();
         String str = "SELECT id FROM " + FPMainConfig.MySQL.Tables.bans + " WHERE intruder=? AND admin=? AND reason=? AND expireTime=? LIMIT 1";
         int id = -1;
         try {
-            PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str);
+            PreparedStatement preparedStmt = FelmonPunishments.getFelmonConnection().getConnection().prepareStatement(str);
             preparedStmt.setString(1, this.getIntruder());
             preparedStmt.setString(2, this.getAdmin());
             preparedStmt.setString(3, this.getReason());
@@ -74,13 +77,16 @@ public class Ban extends Punishment {
 
     @Override
     public int save() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return -1;
+
         int id = searchInDatabase();
         if (id <= 0) {
             // Roles
             try {
                 // MySQL
                 String str = "INSERT INTO " + FPMainConfig.MySQL.Tables.bans + " (intruder, admin, reason, expireTime) VALUES  (?, ?, ?, ?);";
-                PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str, Statement.RETURN_GENERATED_KEYS);
+                PreparedStatement preparedStmt = FelmonPunishments.getFelmonConnection().getConnection().prepareStatement(str, Statement.RETURN_GENERATED_KEYS);
                 preparedStmt.setString(1, this.getIntruder());
                 preparedStmt.setString(2, this.getAdmin());
                 preparedStmt.setString(3, this.getReason());
@@ -111,10 +117,13 @@ public class Ban extends Punishment {
 
     @Override
     public void revoke(String revokedBy) {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return;
+
         try {
             String str = "UPDATE " + FPMainConfig.MySQL.Tables.bans + " SET active = ? WHERE id = ?;";
 
-            PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(str);
+            PreparedStatement preparedStmt = FelmonPunishments.getFelmonConnection().getConnection().prepareStatement(str);
             preparedStmt.setBoolean(1, false);
             preparedStmt.setInt(2, this.getId());
 

@@ -36,9 +36,12 @@ public class BanManager {
     }
 
     public static void load() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return;
+
         String query = "SELECT * FROM " + FPMainConfig.MySQL.Tables.bans + " WHERE active = ?;";
         try {
-            PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(query);
+            PreparedStatement preparedStmt = FelmonPunishments.getFelmonConnection().getConnection().prepareStatement(query);
             preparedStmt.setBoolean(1, true);
 
             ResultSet rs = preparedStmt.executeQuery();
@@ -72,9 +75,12 @@ public class BanManager {
     }
 
     public static boolean createTableIfNotExists() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return false;
+
         String query = "CREATE TABLE IF NOT EXISTS `" + FPMainConfig.MySQL.Tables.bans + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `expireTime` BIGINT DEFAULT 0, PRIMARY KEY (`id`) );";
         try {
-            Statement stmt = FelmonPunishments.getDatabaseConnection().createStatement();
+            Statement stmt = FelmonPunishments.getFelmonConnection().getConnection().createStatement();
             stmt.executeUpdate(query);
             stmt.close();
             return true;

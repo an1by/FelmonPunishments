@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 public enum FPCommandOption {
+    WARN_INTRUDER("Нарушитель", OfflinePlayer.class, false),
     VICTIM("Пострадавший", OfflinePlayer.class),
     NICKNAME("Никнейм игрока", String.class),
     PLAYER("Игрок", OfflinePlayer.class),
@@ -23,6 +24,8 @@ public enum FPCommandOption {
     private final @NotNull String description;
     @Getter
     private final @NotNull Class<?> optionClass;
+    @Getter
+    private boolean required = true;
 
     public @NotNull String getName() {
         return this.name().toLowerCase(Locale.ROOT);
@@ -31,6 +34,12 @@ public enum FPCommandOption {
     FPCommandOption(@NotNull String description, @NotNull Class<?> optionClass) {
         this.description = description;
         this.optionClass = optionClass;
+    }
+
+    FPCommandOption(@NotNull String description, @NotNull Class<?> optionClass, boolean required) {
+        this.description = description;
+        this.optionClass = optionClass;
+        this.required = required;
     }
 
     public @NotNull OptionType getOptionType() {
@@ -46,6 +55,6 @@ public enum FPCommandOption {
     }
     
     public OptionData getOptionDataList() {
-        return new OptionData(getOptionType(), getName(), getDescription()).setRequired(true);
+        return new OptionData(getOptionType(), getName(), getDescription()).setRequired(this.required);
     }
 }

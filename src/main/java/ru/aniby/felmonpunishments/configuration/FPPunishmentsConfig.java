@@ -25,4 +25,8 @@ public class FPPunishmentsConfig {
     public static class Ticket {
         public static boolean enabled = true;
     }
+
+    public static class Bypass {
+        public static String admin = "moder";
+    }
 }

@@ -34,9 +34,12 @@ public class MuteManager {
     }
 
     public static void load() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return;
+
         String query = "SELECT * FROM " + FPMainConfig.MySQL.Tables.mutes + " WHERE active = ?;";
         try {
-            PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(query);
+            PreparedStatement preparedStmt = FelmonPunishments.getFelmonConnection().getConnection().prepareStatement(query);
             preparedStmt.setBoolean(1, true);
 
             ResultSet rs = preparedStmt.executeQuery();
@@ -69,9 +72,12 @@ public class MuteManager {
     }
 
     public static void createTableIfNotExists() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return;
+
         String query = "CREATE TABLE IF NOT EXISTS `" + FPMainConfig.MySQL.Tables.mutes + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `expireTime` BIGINT DEFAULT 0, PRIMARY KEY (`id`) );";
         try {
-            Statement stmt = FelmonPunishments.getDatabaseConnection().createStatement();
+            Statement stmt = FelmonPunishments.getFelmonConnection().getConnection().createStatement();
             stmt.executeUpdate(query);
             stmt.close();
         } catch (SQLException e) {

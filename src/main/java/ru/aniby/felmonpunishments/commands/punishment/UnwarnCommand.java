@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
+import ru.aniby.felmonpunishments.commands.FPCommandOption;
 import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
 import ru.aniby.felmonpunishments.punishment.PunishmentType;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
@@ -19,7 +20,7 @@ import java.util.List;
 public class UnwarnCommand implements FPCommand {
     @Getter
     private final FPArgumenter argumenter = new FPArgumenter(
-            "intruder", "number"
+            FPCommandOption.WARN_INTRUDER, FPCommandOption.NUMBER
     );
 
     @Override
@@ -33,7 +34,7 @@ public class UnwarnCommand implements FPCommand {
 
         String intruder = argumenter.getUsername(object, "intruder");
         Integer number = argumenter.getAnyInteger(object, "number");
-        if (intruder == null || number == null) {
+        if (number == null) {
             CommandUtils.send(object, FPMessagesConfig.wrongArguments);
             return;
         }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import ru.aniby.felmonpunishments.commands.FPArgumenter;
 import ru.aniby.felmonpunishments.commands.FPCommand;
+import ru.aniby.felmonpunishments.commands.FPCommandOption;
 import ru.aniby.felmonpunishments.configuration.FPMessagesConfig;
 import ru.aniby.felmonpunishments.configuration.FPPunishmentsConfig;
 import ru.aniby.felmonpunishments.punishment.warn.Warn;
@@ -12,7 +13,7 @@ import ru.aniby.felmonpunishments.utils.CommandUtils;
 public class WarnCommand implements FPCommand {
     @Getter
     private final FPArgumenter argumenter = new FPArgumenter(
-            "intruder", "reason"
+            FPCommandOption.INTRUDER, FPCommandOption.REASON
     );
     public final @NotNull String getName() {
         return "warn";
@@ -46,7 +47,7 @@ public class WarnCommand implements FPCommand {
         // Execute
         Warn warn = Warn.createPermanentWarn(intruder, executor, reason, true);
         if (warn.getId() <= 0) {
-            CommandUtils.send(object, FPMessagesConfig.existsSimilar);
+            CommandUtils.send(object, FPMessagesConfig.errorInProcessing);
             return;
         }
 

@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.aniby.felmonapi.configuration.FelmonConfigurator;
+import ru.aniby.felmonapi.database.FelmonConnection;
 import ru.aniby.felmonapi.database.MySQL;
 import ru.aniby.felmonpunishments.commands.FPCommand;
 import ru.aniby.felmonpunishments.commands.offense.TicketCommand;
@@ -31,7 +32,7 @@ public final class FelmonPunishments extends JavaPlugin {
     @Getter
     private static FelmonPunishments instance;
     @Getter
-    private static Connection databaseConnection;
+    private static FelmonConnection felmonConnection;
     @Getter
     private static LuckPerms luckPerms;
     @Getter
@@ -72,13 +73,13 @@ public final class FelmonPunishments extends JavaPlugin {
         punishmentsConfig.load();
 
         // Database
-        databaseConnection = MySQL.connect(
+        felmonConnection = FelmonConnection.connect(
                 FPMainConfig.MySQL.host,
                 FPMainConfig.MySQL.database,
                 FPMainConfig.MySQL.user,
                 FPMainConfig.MySQL.password
         );
-        if (databaseConnection == null) {
+        if (felmonConnection == null) {
             instance.getLogger().warning("MySQL database (" + FPMainConfig.MySQL.database + ") can't be loaded! Stopping...");
             return;
         }
@@ -149,6 +150,6 @@ public final class FelmonPunishments extends JavaPlugin {
             punishmentTimer.cancel();
 
         // Database
-        MySQL.disconnect(databaseConnection);
+        felmonConnection.disconnect();
     }
 }

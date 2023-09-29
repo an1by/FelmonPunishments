@@ -7,7 +7,6 @@ import ru.aniby.felmonpunishments.configuration.FPMainConfig;
 import ru.aniby.felmonpunishments.FelmonPunishments;
 import ru.aniby.felmonpunishments.punishment.RevokedPunishment;
 import ru.aniby.felmonpunishments.punishment.ban.Ban;
-import ru.aniby.felmonpunishments.punishment.ban.BanManager;
 import ru.aniby.felmonpunishments.punishment.mute.MuteManager;
 
 import java.sql.PreparedStatement;
@@ -120,9 +119,12 @@ public class WarnManager {
     }
 
     public static void load() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return;
+
         String query = "SELECT * FROM " + FPMainConfig.MySQL.Tables.warns + " WHERE active = ?;";
         try {
-            PreparedStatement preparedStmt = FelmonPunishments.getDatabaseConnection().prepareStatement(query);
+            PreparedStatement preparedStmt = FelmonPunishments.getFelmonConnection().getConnection().prepareStatement(query);
             preparedStmt.setBoolean(1, true);
 
             ResultSet rs = preparedStmt.executeQuery();
@@ -148,9 +150,12 @@ public class WarnManager {
     }
 
     public static void createTableIfNotExists() {
+        if (!FelmonPunishments.getFelmonConnection().reconnectIfClosed())
+            return;
+
         String query = "CREATE TABLE IF NOT EXISTS `" + FPMainConfig.MySQL.Tables.warns + "` ( `id` INT NOT NULL AUTO_INCREMENT, `active` BOOLEAN NOT NULL DEFAULT TRUE, `intruder` VARCHAR(64) NOT NULL, `victim` VARCHAR(64) DEFAULT NULL, `admin` VARCHAR(64) NOT NULL, `reason` LONGTEXT NOT NULL, `startTime` BIGINT DEFAULT 0, `expireTime` BIGINT DEFAULT 10, PRIMARY KEY (`id`) );";
         try {
-            Statement stmt = FelmonPunishments.getDatabaseConnection().createStatement();
+            Statement stmt = FelmonPunishments.getFelmonConnection().getConnection().createStatement();
             stmt.executeUpdate(query);
             stmt.close();
         } catch (SQLException e) {
