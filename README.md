@@ -1,4 +1,4 @@
-# MineStar Velocity
+# Felmon Punishments
 
 ## Time format:
 
